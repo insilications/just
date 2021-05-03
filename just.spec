@@ -4,14 +4,16 @@
 #
 %define keepstatic 1
 Name     : just
-Version  : 0.9.0
+Version  : 0.9.2
 Release  : 7
-URL      : file:///aot/build/clearlinux/packages/just/just-0.9.0.tar.gz
-Source0  : file:///aot/build/clearlinux/packages/just/just-0.9.0.tar.gz
+URL      : file:///aot/build/clearlinux/packages/just/just-0.9.2.tar.gz
+Source0  : file:///aot/build/clearlinux/packages/just/just-0.9.2.tar.gz
 Summary  : No detailed summary available
 Group    : Development/Tools
 License  : GPL-2.0
 Requires: just-bin = %{version}-%{release}
+Requires: just-data = %{version}-%{release}
+Requires: just-man = %{version}-%{release}
 BuildRequires : asciidoctor
 BuildRequires : asciidoctor-bin
 BuildRequires : asciidoctor-dev
@@ -25,10 +27,30 @@ BuildRequires : ca-certs-static
 BuildRequires : cargo-edit
 BuildRequires : doxygen
 BuildRequires : elfutils-dev
+BuildRequires : gcc
 BuildRequires : gcc-dev
+BuildRequires : gcc-dev32
+BuildRequires : gcc-doc
+BuildRequires : gcc-go
+BuildRequires : gcc-go-lib
+BuildRequires : gcc-libgcc32
+BuildRequires : gcc-libs-math
+BuildRequires : gcc-libstdc++32
+BuildRequires : gcc-libubsan
+BuildRequires : gcc-locale
 BuildRequires : git
+BuildRequires : glibc
+BuildRequires : glibc-bin
 BuildRequires : glibc-dev
+BuildRequires : glibc-dev32
+BuildRequires : glibc-doc
+BuildRequires : glibc-extras
+BuildRequires : glibc-lib-avx2
+BuildRequires : glibc-libc32
+BuildRequires : glibc-locale
+BuildRequires : glibc-nscd
 BuildRequires : glibc-staticdev
+BuildRequires : glibc-utils
 BuildRequires : googletest-dev
 BuildRequires : grep
 BuildRequires : intltool
@@ -36,19 +58,18 @@ BuildRequires : intltool-dev
 BuildRequires : libedit
 BuildRequires : libedit-dev
 BuildRequires : libffi-dev
-BuildRequires : libffi-staticdev
+BuildRequires : libgcc1
+BuildRequires : libstdc++
 BuildRequires : libstdc++-dev
 BuildRequires : libxml2-dev
-BuildRequires : libxml2-staticdev
-BuildRequires : llvm12
-BuildRequires : llvm12-abi
-BuildRequires : llvm12-bin
-BuildRequires : llvm12-data
-BuildRequires : llvm12-dev
-BuildRequires : llvm12-lib
-BuildRequires : llvm12-libexec
-BuildRequires : llvm12-man
-BuildRequires : llvm12-staticdev
+BuildRequires : llvm
+BuildRequires : llvm-bin
+BuildRequires : llvm-data
+BuildRequires : llvm-dev
+BuildRequires : llvm-lib
+BuildRequires : llvm-libexec
+BuildRequires : llvm-man
+BuildRequires : llvm-staticdev
 BuildRequires : ncurses-dev
 BuildRequires : ninja
 BuildRequires : openssl
@@ -80,9 +101,26 @@ image:https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg[say thanks,link=mai
 %package bin
 Summary: bin components for the just package.
 Group: Binaries
+Requires: just-data = %{version}-%{release}
 
 %description bin
 bin components for the just package.
+
+
+%package data
+Summary: data components for the just package.
+Group: Data
+
+%description data
+data components for the just package.
+
+
+%package man
+Summary: man components for the just package.
+Group: Default
+
+%description man
+man components for the just package.
 
 
 %prep
@@ -102,7 +140,7 @@ unset https_proxy
 unset no_proxy
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 mkdir -p $HOME/.cargo
-printf "[build]\nrustflags = [\"-Ctarget-cpu=native\", \"-Ztune-cpu=native\", \"-Cprefer-dynamic=no\", \"-Copt-level=3\", \"-Clto=fat\", \"-Clinker-plugin-lto\", \"-Cembed-bitcode=yes\", \"-Clinker=clang-12\", \"-Clink-arg=-flto\", \"-Clink-arg=-fuse-ld=lld\", \"-Clink-arg=-Wl,--lto-O3\", \"-Clink-arg=-Wl,-O2\", \"-Clink-arg=-Wl,--hash-style=gnu\", \"-Clink-arg=-Wl,--enable-new-dtags\", \"-Clink-arg=-Wl,--build-id=sha1\", \"-Clink-arg=-fno-stack-protector\", \"-Clink-arg=-Wl,--as-needed\", \"-Clink-arg=-O3\", \"-Clink-arg=-march=native\", \"-Clink-arg=-mtune=native\", \"-Clink-arg=-falign-functions=32\", \"-Clink-arg=-fasynchronous-unwind-tables\", \"-Clink-arg=-funroll-loops\", \"-Clink-arg=-fvisibility-inlines-hidden\", \"-Clink-arg=-static-libstdc++\", \"-Clink-arg=-march=native\", \"-Clink-arg=-static-libgcc\", \"-Clink-arg=-pthread\", \"-Clink-arg=-lpthread\", \"-Clink-arg=-L.\"]\n[net]\ngit-fetch-with-cli = true\n[profile.release]\nopt-level = 3\nlto = \"fat\"\n" > $HOME/.cargo/config.toml
+printf "[build]\nrustflags = [\"-Ctarget-cpu=native\", \"-Ztune-cpu=native\", \"-Cprefer-dynamic=no\", \"-Copt-level=3\", \"-Clto=fat\", \"-Clinker-plugin-lto\", \"-Cembed-bitcode=yes\", \"-Clinker=clang\", \"-Clink-arg=-flto\", \"-Clink-arg=-fuse-ld=lld\", \"-Clink-arg=-Wl,--lto-O3\", \"-Clink-arg=-Wl,-O2\", \"-Clink-arg=-Wl,--hash-style=gnu\", \"-Clink-arg=-Wl,--enable-new-dtags\", \"-Clink-arg=-Wl,--build-id=sha1\", \"-Clink-arg=-fno-stack-protector\", \"-Clink-arg=-Wl,--as-needed\", \"-Clink-arg=-O3\", \"-Clink-arg=-march=native\", \"-Clink-arg=-mtune=native\", \"-Clink-arg=-falign-functions=32\", \"-Clink-arg=-fasynchronous-unwind-tables\", \"-Clink-arg=-funroll-loops\", \"-Clink-arg=-fvisibility-inlines-hidden\", \"-Clink-arg=-static-libstdc++\", \"-Clink-arg=-march=native\", \"-Clink-arg=-static-libgcc\", \"-Clink-arg=-pthread\", \"-Clink-arg=-lpthread\", \"-Clink-arg=-L.\"]\n[net]\ngit-fetch-with-cli = true\n[profile.release]\nopt-level = 3\nlto = \"fat\"\n" > $HOME/.cargo/config.toml
 unset CFLAGS
 unset CXXFLAGS
 unset FCFLAGS
@@ -112,14 +150,14 @@ unset LDFLAGS
 export CARGO_NET_GIT_FETCH_WITH_CLI=true
 export CARGO_PROFILE_RELEASE_LTO=fat
 export CARGO_PROFILE_RELEASE_OPT_LEVEL=3
-export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=clang-12
+export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=clang
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 export CARGO_HTTP_CAINFO=/var/cache/ca-certs/anchors/ca-certificates.crt
 export CARGO_TARGET_DIR=target
 
 %install
 mkdir -p $HOME/.cargo
-printf "[build]\nrustflags = [\"-Ctarget-cpu=native\", \"-Ztune-cpu=native\", \"-Cprefer-dynamic=no\", \"-Copt-level=3\", \"-Clto=fat\", \"-Clinker-plugin-lto\", \"-Cembed-bitcode=yes\", \"-Clinker=clang-12\", \"-Clink-arg=-flto\", \"-Clink-arg=-fuse-ld=lld\", \"-Clink-arg=-Wl,--lto-O3\", \"-Clink-arg=-Wl,-O2\", \"-Clink-arg=-Wl,--hash-style=gnu\", \"-Clink-arg=-Wl,--enable-new-dtags\", \"-Clink-arg=-Wl,--build-id=sha1\", \"-Clink-arg=-fno-stack-protector\", \"-Clink-arg=-Wl,--as-needed\", \"-Clink-arg=-O3\", \"-Clink-arg=-march=native\", \"-Clink-arg=-mtune=native\", \"-Clink-arg=-falign-functions=32\", \"-Clink-arg=-fasynchronous-unwind-tables\", \"-Clink-arg=-funroll-loops\", \"-Clink-arg=-fvisibility-inlines-hidden\", \"-Clink-arg=-static-libstdc++\", \"-Clink-arg=-march=native\", \"-Clink-arg=-static-libgcc\", \"-Clink-arg=-pthread\", \"-Clink-arg=-lpthread\", \"-Clink-arg=-L.\"]\n[net]\ngit-fetch-with-cli = true\n[profile.release]\nopt-level = 3\nlto = \"fat\"\n" > $HOME/.cargo/config.toml
+printf "[build]\nrustflags = [\"-Ctarget-cpu=native\", \"-Ztune-cpu=native\", \"-Cprefer-dynamic=no\", \"-Copt-level=3\", \"-Clto=fat\", \"-Clinker-plugin-lto\", \"-Cembed-bitcode=yes\", \"-Clinker=clang\", \"-Clink-arg=-flto\", \"-Clink-arg=-fuse-ld=lld\", \"-Clink-arg=-Wl,--lto-O3\", \"-Clink-arg=-Wl,-O2\", \"-Clink-arg=-Wl,--hash-style=gnu\", \"-Clink-arg=-Wl,--enable-new-dtags\", \"-Clink-arg=-Wl,--build-id=sha1\", \"-Clink-arg=-fno-stack-protector\", \"-Clink-arg=-Wl,--as-needed\", \"-Clink-arg=-O3\", \"-Clink-arg=-march=native\", \"-Clink-arg=-mtune=native\", \"-Clink-arg=-falign-functions=32\", \"-Clink-arg=-fasynchronous-unwind-tables\", \"-Clink-arg=-funroll-loops\", \"-Clink-arg=-fvisibility-inlines-hidden\", \"-Clink-arg=-static-libstdc++\", \"-Clink-arg=-march=native\", \"-Clink-arg=-static-libgcc\", \"-Clink-arg=-pthread\", \"-Clink-arg=-lpthread\", \"-Clink-arg=-L.\"]\n[net]\ngit-fetch-with-cli = true\n[profile.release]\nopt-level = 3\nlto = \"fat\"\n" > $HOME/.cargo/config.toml
 unset CFLAGS
 unset CXXFLAGS
 unset FCFLAGS
@@ -129,12 +167,20 @@ unset LDFLAGS
 export CARGO_NET_GIT_FETCH_WITH_CLI=true
 export CARGO_PROFILE_RELEASE_LTO=fat
 export CARGO_PROFILE_RELEASE_OPT_LEVEL=3
-export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=clang-12
+export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=clang
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 export CARGO_HTTP_CAINFO=/var/cache/ca-certs/anchors/ca-certificates.crt
 export CARGO_TARGET_DIR=target
 cargo install %{?_smp_mflags} --all-features --offline --no-track --target x86_64-unknown-linux-gnu --verbose --path . --target-dir target --root %{buildroot}/usr/
 ## Cargo install assets
+install -dm 0755 %{buildroot}/usr/share/bash-completion/completions/
+install -m0644 /builddir/build/BUILD/just/completions/just.bash %{buildroot}/usr/share/bash-completion/completions/just
+install -dm 0755 %{buildroot}/usr/share/fish/completions/
+install -m0644 /builddir/build/BUILD/just/completions/just.fish %{buildroot}/usr/share/fish/completions/just.fish
+install -dm 0755 %{buildroot}/usr/share/zsh/site-functions/
+install -m0644 /builddir/build/BUILD/just/completions/just.zsh %{buildroot}/usr/share/zsh/site-functions/_just
+install -dm 0755 %{buildroot}/usr/share/man/man1/
+install -m0644 /builddir/build/BUILD/just/man/just.1 %{buildroot}/usr/share/man/man1/just.1
 
 %files
 %defattr(-,root,root,-)
@@ -142,3 +188,13 @@ cargo install %{?_smp_mflags} --all-features --offline --no-track --target x86_6
 %files bin
 %defattr(-,root,root,-)
 /usr/bin/just
+
+%files data
+%defattr(-,root,root,-)
+/usr/share/bash-completion/completions/just
+/usr/share/fish/completions/just.fish
+/usr/share/zsh/site-functions/_just
+
+%files man
+%defattr(0644,root,root,0755)
+/usr/share/man/man1/just.1
