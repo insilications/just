@@ -4,16 +4,13 @@
 #
 %define keepstatic 1
 Name     : just
-Version  : 0.9.2
-Release  : 7
-URL      : file:///aot/build/clearlinux/packages/just/just-0.9.2.tar.gz
-Source0  : file:///aot/build/clearlinux/packages/just/just-0.9.2.tar.gz
+Version  : 1.1.0
+Release  : 8
+URL      : file:///aot/build/clearlinux/packages/just/just-v1.1.0.tar.gz
+Source0  : file:///aot/build/clearlinux/packages/just/just-v1.1.0.tar.gz
 Summary  : No detailed summary available
 Group    : Development/Tools
 License  : GPL-2.0
-Requires: just-bin = %{version}-%{release}
-Requires: just-data = %{version}-%{release}
-Requires: just-man = %{version}-%{release}
 BuildRequires : asciidoctor
 BuildRequires : asciidoctor-bin
 BuildRequires : asciidoctor-dev
@@ -24,33 +21,12 @@ BuildRequires : buildreq-cmake
 BuildRequires : buildreq-distutils3
 BuildRequires : ca-certs
 BuildRequires : ca-certs-static
-BuildRequires : cargo-edit
 BuildRequires : doxygen
 BuildRequires : elfutils-dev
-BuildRequires : gcc
 BuildRequires : gcc-dev
-BuildRequires : gcc-dev32
-BuildRequires : gcc-doc
-BuildRequires : gcc-go
-BuildRequires : gcc-go-lib
-BuildRequires : gcc-libgcc32
-BuildRequires : gcc-libs-math
-BuildRequires : gcc-libstdc++32
-BuildRequires : gcc-libubsan
-BuildRequires : gcc-locale
 BuildRequires : git
-BuildRequires : glibc
-BuildRequires : glibc-bin
 BuildRequires : glibc-dev
-BuildRequires : glibc-dev32
-BuildRequires : glibc-doc
-BuildRequires : glibc-extras
-BuildRequires : glibc-lib-avx2
-BuildRequires : glibc-libc32
-BuildRequires : glibc-locale
-BuildRequires : glibc-nscd
 BuildRequires : glibc-staticdev
-BuildRequires : glibc-utils
 BuildRequires : googletest-dev
 BuildRequires : grep
 BuildRequires : intltool
@@ -58,29 +34,38 @@ BuildRequires : intltool-dev
 BuildRequires : libedit
 BuildRequires : libedit-dev
 BuildRequires : libffi-dev
-BuildRequires : libgcc1
-BuildRequires : libstdc++
+BuildRequires : libffi-staticdev
 BuildRequires : libstdc++-dev
+BuildRequires : libunwind
+BuildRequires : libunwind-dev
 BuildRequires : libxml2-dev
+BuildRequires : libxml2-staticdev
 BuildRequires : llvm
 BuildRequires : llvm-bin
 BuildRequires : llvm-data
 BuildRequires : llvm-dev
 BuildRequires : llvm-lib
 BuildRequires : llvm-libexec
-BuildRequires : llvm-man
 BuildRequires : llvm-staticdev
 BuildRequires : ncurses-dev
 BuildRequires : ninja
 BuildRequires : openssl
 BuildRequires : openssl-dev
+BuildRequires : openssl-staticdev
 BuildRequires : pandoc
 BuildRequires : pandocfilters
+BuildRequires : pcre
+BuildRequires : pcre-dev
+BuildRequires : pcre-staticdev
+BuildRequires : pcre2
+BuildRequires : pcre2-dev
+BuildRequires : pcre2-staticdev
 BuildRequires : ruby
 BuildRequires : rustc
 BuildRequires : rustc-bin
 BuildRequires : rustc-data
 BuildRequires : rustc-dev
+BuildRequires : rustc-libexec
 BuildRequires : rustc-staticdev
 BuildRequires : termcolor
 BuildRequires : time
@@ -89,39 +74,7 @@ BuildRequires : time
 %define debug_package %{nil}
 
 %description
-= `just`
-:toc: macro
-:toc-title:
-image:https://img.shields.io/crates/v/just.svg[crates.io version,link=https://crates.io/crates/just]
-image:https://github.com/casey/just/workflows/Build/badge.svg[build status,link=https://github.com/casey/just/actions]
-image:https://img.shields.io/github/downloads/casey/just/total.svg[downloads,link=https://github.com/casey/just/releases]
-image:https://img.shields.io/discord/695580069837406228?logo=discord[chat on discord,link=https://discord.gg/ezYScXR]
-image:https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg[say thanks,link=mailto:casey@rodarmor.com?subject=Thanks for Just!]
-
-%package bin
-Summary: bin components for the just package.
-Group: Binaries
-Requires: just-data = %{version}-%{release}
-
-%description bin
-bin components for the just package.
-
-
-%package data
-Summary: data components for the just package.
-Group: Data
-
-%description data
-data components for the just package.
-
-
-%package man
-Summary: man components for the just package.
-Group: Default
-
-%description man
-man components for the just package.
-
+No detailed description available
 
 %prep
 %setup -q -n just
@@ -130,8 +83,6 @@ export CARGO_NET_GIT_FETCH_WITH_CLI=true
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 export CARGO_HTTP_CAINFO=/var/cache/ca-certs/anchors/ca-certificates.crt
 cargo update --verbose
-## cargo_update content
-## cargo_update end
 cargo fetch --verbose
 
 %build
@@ -139,62 +90,241 @@ unset http_proxy
 unset https_proxy
 unset no_proxy
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
-mkdir -p $HOME/.cargo
-printf "[build]\nrustflags = [\"-Ctarget-cpu=native\", \"-Ztune-cpu=native\", \"-Cprefer-dynamic=no\", \"-Copt-level=3\", \"-Clto=fat\", \"-Clinker-plugin-lto\", \"-Cembed-bitcode=yes\", \"-Clinker=clang\", \"-Clink-arg=-flto\", \"-Clink-arg=-fuse-ld=lld\", \"-Clink-arg=-Wl,--lto-O3\", \"-Clink-arg=-Wl,-O2\", \"-Clink-arg=-Wl,--hash-style=gnu\", \"-Clink-arg=-Wl,--enable-new-dtags\", \"-Clink-arg=-Wl,--build-id=sha1\", \"-Clink-arg=-fno-stack-protector\", \"-Clink-arg=-Wl,--as-needed\", \"-Clink-arg=-O3\", \"-Clink-arg=-march=native\", \"-Clink-arg=-mtune=native\", \"-Clink-arg=-falign-functions=32\", \"-Clink-arg=-fasynchronous-unwind-tables\", \"-Clink-arg=-funroll-loops\", \"-Clink-arg=-fvisibility-inlines-hidden\", \"-Clink-arg=-static-libstdc++\", \"-Clink-arg=-march=native\", \"-Clink-arg=-static-libgcc\", \"-Clink-arg=-pthread\", \"-Clink-arg=-lpthread\", \"-Clink-arg=-L.\"]\n[net]\ngit-fetch-with-cli = true\n[profile.release]\nopt-level = 3\nlto = \"fat\"\n" > $HOME/.cargo/config.toml
-unset CFLAGS
-unset CXXFLAGS
-unset FCFLAGS
-unset FFLAGS
-unset CFFLAGS
-unset LDFLAGS
+export LANG=C.UTF-8
+export SOURCE_DATE_EPOCH=1647690458
+export GCC_IGNORE_WERROR=1
+## altflagsrust_pgo content
 export CARGO_NET_GIT_FETCH_WITH_CLI=true
-export CARGO_PROFILE_RELEASE_LTO=fat
-export CARGO_PROFILE_RELEASE_OPT_LEVEL=3
-export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=clang
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 export CARGO_HTTP_CAINFO=/var/cache/ca-certs/anchors/ca-certificates.crt
-export CARGO_TARGET_DIR=target
+export CC=clang
+export CXX=clang++
+export CC_x86_64_unknown_linux_gnu=clang
+export CXX_x86_64_unknown_linux_gnu=clang++
+export AR=/usr/bin/llvm-ar
+export RANLIB=/usr/bin/llvm-ranlib
+export NM=/usr/bin/llvm-nm
+export AR_x86_64_unknown_linux_gnu=/usr/bin/llvm-ar
+export RANLIB_x86_64_unknown_linux_gnu=/usr/bin/llvm-ranlib
+export NM_x86_64_unknown_linux_gnu=/usr/bin/llvm-nm
+export CRATE_CC_NO_DEFAULTS=1
+export CARGO_BUILD_JOBS=16
+export LLVM_PROFILE_FILE="/var/tmp/pgo/code-%p-%m.profraw"
+export PGO_GEN="-fprofile-generate=/var/tmp/pgo/"
+export PGO_GEN_RUST="-Cprofile-generate=/var/tmp/pgo/ -Clink-arg=-fprofile-generate=/var/tmp/pgo/"
+export PGO_USE="-fprofile-use=/var/tmp/pgo/rustprofile.profdata -Wl,--lto-pgo-warn-mismatch"
+export PGO_USE_RUST="-Cprofile-use=/var/tmp/pgo/rustprofile.profdata -Clink-arg=-fprofile-use=/var/tmp/pgo/rustprofile.profdata -Cllvm-args=-pgo-warn-missing-function -Clink-arg=-Wl,--lto-pgo-warn-mismatch"
+export CFLAGS_GENERATE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_GEN"
+export CXXFLAGS_GENERATE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_GEN"
+export LDFLAGS_GENERATE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_GEN"
+export CFLAGS_x86_64_unknown_linux_gnu_GENERATE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_GEN"
+export CXXFLAGS_x86_64_unknown_linux_gnu_GENERATE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_GEN"
+export LDFLAGS_x86_64_unknown_linux_gnu_GENERATE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_GEN"
+export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS_GENERATE="-Zunstable-options -Clink-self-contained=off -Coverflow-checks=off -Cstrip=debuginfo -Cdebug-assertions=off -Cdebuginfo=0 -Ctarget-cpu=native -Cprefer-dynamic=no -Zplt=off -Ztune-cpu=native -Copt-level=3 -Clinker-plugin-lto=on -Ccodegen-units=1 -Cembed-bitcode=yes -Ctarget-feature=+crt-static,-vzeroupper -Crelocation-model=static -Cincremental=false -Cforce-frame-pointers=off -Cforce-unwind-tables=off -Cpanic=abort -Clinker=/usr/bin/clang -Clink-arg=-Wno-unused-command-line-argument -Clink-arg=-DNDEBUG -Clink-arg=-Wall -Clink-arg=-flto=full -Clink-arg=-Wl,--lto-partitions=1 -Clink-arg=-Wl,--lto-O3 -Clink-arg=-Wl,-O2 -Clink-arg=-Ofast -Clink-arg=-mno-vzeroupper -Clink-arg=-march=native -Clink-arg=-mtune=native -Clink-arg=-fuse-ld=lld -Clink-arg=-Wl,--as-needed -Clink-arg=-Wl,--build-id=sha1 -Clink-arg=-Wl,--enable-new-dtags -Clink-arg=-Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Clink-arg=-Wno-error -Clink-arg=-mprefer-vector-width=256 -Clink-arg=-falign-functions=32 -Clink-arg=-fno-semantic-interposition -Clink-arg=-Wl,-Bsymbolic-functions -Clink-arg=-fno-stack-protector -Clink-arg=-fno-trapping-math -Clink-arg=-fno-math-errno -Clink-arg=-ftree-slp-vectorize -Clink-arg=-ftree-vectorize -Clink-arg=-feliminate-unused-debug-types -Clink-arg=-fno-plt -Clink-arg=-Wno-error -Clink-arg=-Wp,-D_REENTRANT -Clink-arg=-fvisibility-inlines-hidden -Clink-arg=-fomit-frame-pointer -Clink-arg=-static-libstdc++ -Clink-arg=-static-libgcc -Clink-arg=-pthread -Clink-arg=-fPIC -Clink-arg=-pipe -Clink-arg=-L. $PGO_GEN_RUST"
+export RUSTFLAGS_GENERATE="-Zunstable-options -Clink-self-contained=off -Coverflow-checks=off -Cstrip=debuginfo -Cdebug-assertions=off -Cdebuginfo=0 -Ctarget-cpu=native -Cprefer-dynamic=no -Zplt=off -Ztune-cpu=native -Copt-level=3 -Clinker-plugin-lto=on -Ccodegen-units=1 -Cembed-bitcode=yes -Ctarget-feature=+crt-static,-vzeroupper -Crelocation-model=static -Cincremental=false -Cforce-frame-pointers=off -Cforce-unwind-tables=off -Cpanic=abort -Clinker=/usr/bin/clang -Clink-arg=-Wno-unused-command-line-argument -Clink-arg=-DNDEBUG -Clink-arg=-Wall -Clink-arg=-flto=full -Clink-arg=-Wl,--lto-partitions=1 -Clink-arg=-Wl,--lto-O3 -Clink-arg=-Wl,-O2 -Clink-arg=-Ofast -Clink-arg=-mno-vzeroupper -Clink-arg=-march=native -Clink-arg=-mtune=native -Clink-arg=-fuse-ld=lld -Clink-arg=-Wl,--as-needed -Clink-arg=-Wl,--build-id=sha1 -Clink-arg=-Wl,--enable-new-dtags -Clink-arg=-Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Clink-arg=-Wno-error -Clink-arg=-mprefer-vector-width=256 -Clink-arg=-falign-functions=32 -Clink-arg=-fno-semantic-interposition -Clink-arg=-Wl,-Bsymbolic-functions -Clink-arg=-fno-stack-protector -Clink-arg=-fno-trapping-math -Clink-arg=-fno-math-errno -Clink-arg=-ftree-slp-vectorize -Clink-arg=-ftree-vectorize -Clink-arg=-feliminate-unused-debug-types -Clink-arg=-fno-plt -Clink-arg=-Wno-error -Clink-arg=-Wp,-D_REENTRANT -Clink-arg=-fvisibility-inlines-hidden -Clink-arg=-fomit-frame-pointer -Clink-arg=-static-libstdc++ -Clink-arg=-static-libgcc -Clink-arg=-pthread -Clink-arg=-fPIC -Clink-arg=-pipe -Clink-arg=-L. $PGO_GEN_RUST"
+export CARGO_HOST_RUSTFLAGS_GENERATE="-Zunstable-options -Clink-self-contained=off -Coverflow-checks=off -Cstrip=debuginfo -Cdebug-assertions=off -Cdebuginfo=0 -Ctarget-cpu=native -Cprefer-dynamic=no -Zplt=off -Ztune-cpu=native -Copt-level=3 -Clinker-plugin-lto=on -Ccodegen-units=1 -Cembed-bitcode=yes -Ctarget-feature=-vzeroupper -Crelocation-model=static -Cincremental=false -Cforce-frame-pointers=off -Cforce-unwind-tables=off -Cpanic=abort -Clinker=/usr/bin/clang -Clink-arg=-Wno-unused-command-line-argument -Clink-arg=-DNDEBUG -Clink-arg=-Wall -Clink-arg=-flto=full -Clink-arg=-Wl,--lto-partitions=1 -Clink-arg=-Wl,--lto-O3 -Clink-arg=-Wl,-O2 -Clink-arg=-Ofast -Clink-arg=-mno-vzeroupper -Clink-arg=-march=native -Clink-arg=-mtune=native -Clink-arg=-fuse-ld=lld -Clink-arg=-Wl,--as-needed -Clink-arg=-Wl,--build-id=sha1 -Clink-arg=-Wl,--enable-new-dtags -Clink-arg=-Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Clink-arg=-Wno-error -Clink-arg=-mprefer-vector-width=256 -Clink-arg=-falign-functions=32 -Clink-arg=-fno-semantic-interposition -Clink-arg=-Wl,-Bsymbolic-functions -Clink-arg=-fno-stack-protector -Clink-arg=-fno-trapping-math -Clink-arg=-fno-math-errno -Clink-arg=-ftree-slp-vectorize -Clink-arg=-ftree-vectorize -Clink-arg=-feliminate-unused-debug-types -Clink-arg=-fno-plt -Clink-arg=-Wno-error -Clink-arg=-Wp,-D_REENTRANT -Clink-arg=-fvisibility-inlines-hidden -Clink-arg=-fomit-frame-pointer -Clink-arg=-static-libstdc++ -Clink-arg=-static-libgcc -Clink-arg=-pthread -Clink-arg=-fPIC -Clink-arg=-pipe -Clink-arg=-L. $PGO_GEN_RUST"
+export CFLAGS_USE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_USE"
+export CXXFLAGS_USE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_USE"
+export LDFLAGS_USE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_USE"
+export CFLAGS_x86_64_unknown_linux_gnu_USE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_USE"
+export CXXFLAGS_x86_64_unknown_linux_gnu_USE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_USE"
+export LDFLAGS_x86_64_unknown_linux_gnu_USE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_USE"
+export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS_USE="-Zunstable-options -Clink-self-contained=off -Coverflow-checks=off -Cstrip=debuginfo -Cdebug-assertions=off -Cdebuginfo=0 -Ctarget-cpu=native -Cprefer-dynamic=no -Zplt=off -Ztune-cpu=native -Copt-level=3 -Clinker-plugin-lto=on -Ccodegen-units=1 -Cembed-bitcode=yes -Ctarget-feature=+crt-static,-vzeroupper -Crelocation-model=static -Cincremental=false -Cforce-frame-pointers=off -Cforce-unwind-tables=off -Cpanic=abort -Clinker=/usr/bin/clang -Clink-arg=-Wno-unused-command-line-argument -Clink-arg=-DNDEBUG -Clink-arg=-Wall -Clink-arg=-flto=full -Clink-arg=-Wl,--lto-partitions=1 -Clink-arg=-Wl,--lto-O3 -Clink-arg=-Wl,-O2 -Clink-arg=-Ofast -Clink-arg=-mno-vzeroupper -Clink-arg=-march=native -Clink-arg=-mtune=native -Clink-arg=-fuse-ld=lld -Clink-arg=-Wl,--as-needed -Clink-arg=-Wl,--build-id=sha1 -Clink-arg=-Wl,--enable-new-dtags -Clink-arg=-Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Clink-arg=-Wno-error -Clink-arg=-mprefer-vector-width=256 -Clink-arg=-falign-functions=32 -Clink-arg=-fno-semantic-interposition -Clink-arg=-Wl,-Bsymbolic-functions -Clink-arg=-fno-stack-protector -Clink-arg=-fno-trapping-math -Clink-arg=-fno-math-errno -Clink-arg=-ftree-slp-vectorize -Clink-arg=-ftree-vectorize -Clink-arg=-feliminate-unused-debug-types -Clink-arg=-fno-plt -Clink-arg=-Wno-error -Clink-arg=-Wp,-D_REENTRANT -Clink-arg=-fvisibility-inlines-hidden -Clink-arg=-fomit-frame-pointer -Clink-arg=-static-libstdc++ -Clink-arg=-static-libgcc -Clink-arg=-pthread -Clink-arg=-fPIC -Clink-arg=-pipe -Clink-arg=-L. $PGO_USE_RUST"
+export RUSTFLAGS_USE="-Zunstable-options -Clink-self-contained=off -Coverflow-checks=off -Cstrip=debuginfo -Cdebug-assertions=off -Cdebuginfo=0 -Ctarget-cpu=native -Cprefer-dynamic=no -Zplt=off -Ztune-cpu=native -Copt-level=3 -Clinker-plugin-lto=on -Ccodegen-units=1 -Cembed-bitcode=yes -Ctarget-feature=+crt-static,-vzeroupper -Crelocation-model=static -Cincremental=false -Cforce-frame-pointers=off -Cforce-unwind-tables=off -Cpanic=abort -Clinker=/usr/bin/clang -Clink-arg=-Wno-unused-command-line-argument -Clink-arg=-DNDEBUG -Clink-arg=-Wall -Clink-arg=-flto=full -Clink-arg=-Wl,--lto-partitions=1 -Clink-arg=-Wl,--lto-O3 -Clink-arg=-Wl,-O2 -Clink-arg=-Ofast -Clink-arg=-mno-vzeroupper -Clink-arg=-march=native -Clink-arg=-mtune=native -Clink-arg=-fuse-ld=lld -Clink-arg=-Wl,--as-needed -Clink-arg=-Wl,--build-id=sha1 -Clink-arg=-Wl,--enable-new-dtags -Clink-arg=-Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Clink-arg=-Wno-error -Clink-arg=-mprefer-vector-width=256 -Clink-arg=-falign-functions=32 -Clink-arg=-fno-semantic-interposition -Clink-arg=-Wl,-Bsymbolic-functions -Clink-arg=-fno-stack-protector -Clink-arg=-fno-trapping-math -Clink-arg=-fno-math-errno -Clink-arg=-ftree-slp-vectorize -Clink-arg=-ftree-vectorize -Clink-arg=-feliminate-unused-debug-types -Clink-arg=-fno-plt -Clink-arg=-Wno-error -Clink-arg=-Wp,-D_REENTRANT -Clink-arg=-fvisibility-inlines-hidden -Clink-arg=-fomit-frame-pointer -Clink-arg=-static-libstdc++ -Clink-arg=-static-libgcc -Clink-arg=-pthread -Clink-arg=-fPIC -Clink-arg=-pipe -Clink-arg=-L. $PGO_USE_RUST"
+export CARGO_HOST_RUSTFLAGS_USE="-Zunstable-options -Clink-self-contained=off -Coverflow-checks=off -Cstrip=debuginfo -Cdebug-assertions=off -Cdebuginfo=0 -Ctarget-cpu=native -Cprefer-dynamic=no -Zplt=off -Ztune-cpu=native -Copt-level=3 -Clinker-plugin-lto=on -Ccodegen-units=1 -Cembed-bitcode=yes -Ctarget-feature=-vzeroupper -Crelocation-model=static -Cincremental=false -Cforce-frame-pointers=off -Cforce-unwind-tables=off -Cpanic=abort -Clinker=/usr/bin/clang -Clink-arg=-Wno-unused-command-line-argument -Clink-arg=-DNDEBUG -Clink-arg=-Wall -Clink-arg=-flto=full -Clink-arg=-Wl,--lto-partitions=1 -Clink-arg=-Wl,--lto-O3 -Clink-arg=-Wl,-O2 -Clink-arg=-Ofast -Clink-arg=-mno-vzeroupper -Clink-arg=-march=native -Clink-arg=-mtune=native -Clink-arg=-fuse-ld=lld -Clink-arg=-Wl,--as-needed -Clink-arg=-Wl,--build-id=sha1 -Clink-arg=-Wl,--enable-new-dtags -Clink-arg=-Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Clink-arg=-Wno-error -Clink-arg=-mprefer-vector-width=256 -Clink-arg=-falign-functions=32 -Clink-arg=-fno-semantic-interposition -Clink-arg=-Wl,-Bsymbolic-functions -Clink-arg=-fno-stack-protector -Clink-arg=-fno-trapping-math -Clink-arg=-fno-math-errno -Clink-arg=-ftree-slp-vectorize -Clink-arg=-ftree-vectorize -Clink-arg=-feliminate-unused-debug-types -Clink-arg=-fno-plt -Clink-arg=-Wno-error -Clink-arg=-Wp,-D_REENTRANT -Clink-arg=-fvisibility-inlines-hidden -Clink-arg=-fomit-frame-pointer -Clink-arg=-static-libstdc++ -Clink-arg=-static-libgcc -Clink-arg=-pthread -Clink-arg=-fPIC -Clink-arg=-pipe -Clink-arg=-L. $PGO_USE_RUST"
+export PCRE2_SYS_STATIC=1
+export OPENSSL_STATIC=yes
+export OPENSSL_LIB_DIR=/usr/lib64/
+export OPENSSL_INCLUDE_DIR=/usr/include/
+export MAKEFLAGS=%{?_smp_mflags}
+%global _lto_cflags 1
+%global _disable_maintainer_mode 1
+export CCACHE_DISABLE=true
+export CCACHE_NOHASHDIR=true
+export CCACHE_CPP2=true
+export CCACHE_SLOPPINESS=pch_defines,time_macros,locale,file_stat_matches,file_stat_matches_ctime,include_file_ctime,include_file_mtime,modules,system_headers,clang_index_store,file_macro
+export CCACHE_DIR=/var/tmp/ccache
+export CCACHE_BASEDIR=/builddir/build/BUILD
+export PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/share/pkgconfig"
+export LD_LIBRARY_PATH="/usr/local/nvidia/lib64:/usr/local/nvidia/lib64/gbm:/usr/local/nvidia/lib64/vdpau:/usr/local/nvidia/lib64/xorg/modules/drivers:/usr/local/nvidia/lib64/xorg/modules/extensions:/usr/local/cuda/lib64:/usr/lib64/haswell:/usr/lib64/dri:/usr/lib64:/usr/lib:/aot/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin:/aot/intel/oneapi/compiler/latest/linux/lib:/aot/intel/oneapi/mkl/latest/lib/intel64:/aot/intel/oneapi/tbb/latest/lib/intel64/gcc4.8:/usr/share:/usr/lib64/wine:/usr/local/nvidia/lib32:/usr/local/nvidia/lib32/vdpau:/usr/lib32:/usr/lib32/wine"
+export LIBRARY_PATH="/usr/local/nvidia/lib64:/usr/local/nvidia/lib64/gbm:/usr/local/nvidia/lib64/vdpau:/usr/local/nvidia/lib64/xorg/modules/drivers:/usr/local/nvidia/lib64/xorg/modules/extensions:/usr/local/cuda/lib64:/usr/lib64/haswell:/usr/lib64/dri:/usr/lib64:/usr/lib:/aot/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin:/aot/intel/oneapi/compiler/latest/linux/lib:/aot/intel/oneapi/mkl/latest/lib/intel64:/aot/intel/oneapi/tbb/latest/lib/intel64/gcc4.8:/usr/share:/usr/lib64/wine:/usr/local/nvidia/lib32:/usr/local/nvidia/lib32/vdpau:/usr/lib32:/usr/lib32/wine"
+export PATH="/usr/lib64/ccache/bin:/usr/local/cuda/bin:/usr/local/nvidia/bin:/usr/bin/haswell:/usr/bin:/usr/sbin"
+export CPATH="/usr/local/cuda/include"
+export DISPLAY=:0
+export __GL_SYNC_TO_VBLANK=1
+export __GL_SYNC_DISPLAY_DEVICE=HDMI-0
+export VDPAU_NVIDIA_SYNC_DISPLAY_DEVICE=HDMI-0
+export LANG=en_US.UTF-8
+export XDG_CONFIG_DIRS=/usr/share/xdg:/etc/xdg
+export XDG_SEAT=seat0
+export XDG_SESSION_TYPE=tty
+export XDG_CURRENT_DESKTOP=KDE
+export XDG_SESSION_CLASS=user
+export XDG_VTNR=1
+export XDG_SESSION_ID=1
+export XDG_RUNTIME_DIR=/run/user/1000
+export XDG_DATA_DIRS=/usr/local/share:/usr/share
+export KDE_SESSION_VERSION=5
+export KDE_SESSION_UID=1000
+export KDE_FULL_SESSION=true
+export KDE_APPLICATIONS_AS_SCOPE=1
+export VDPAU_DRIVER=nvidia
+export LIBVA_DRIVER_NAME=vdpau
+export LIBVA_DRIVERS_PATH=/usr/lib64/dri
+export GTK_RC_FILES=/etc/gtk/gtkrc
+export FONTCONFIG_PATH="/usr/share/defaults/fonts"
+export GTK_IM_MODULE="xim"
+export QT_IM_MODULE="cedilla"
+export FREETYPE_PROPERTIES="truetype:interpreter-version=40"
+export NO_AT_BRIDGE=1
+export GTK_A11Y=none
+export PLASMA_USE_QT_SCALING=1
+export QT_AUTO_SCREEN_SCALE_FACTOR=0
+export QT_ENABLE_HIGHDPI_SCALING=0
+export QT_FONT_DPI=88
+export GTK_USE_PORTAL=1
+export DESKTOP_SESSION=plasma
+## altflagsrust_pgo end
 
 %install
-mkdir -p $HOME/.cargo
-printf "[build]\nrustflags = [\"-Ctarget-cpu=native\", \"-Ztune-cpu=native\", \"-Cprefer-dynamic=no\", \"-Copt-level=3\", \"-Clto=fat\", \"-Clinker-plugin-lto\", \"-Cembed-bitcode=yes\", \"-Clinker=clang\", \"-Clink-arg=-flto\", \"-Clink-arg=-fuse-ld=lld\", \"-Clink-arg=-Wl,--lto-O3\", \"-Clink-arg=-Wl,-O2\", \"-Clink-arg=-Wl,--hash-style=gnu\", \"-Clink-arg=-Wl,--enable-new-dtags\", \"-Clink-arg=-Wl,--build-id=sha1\", \"-Clink-arg=-fno-stack-protector\", \"-Clink-arg=-Wl,--as-needed\", \"-Clink-arg=-O3\", \"-Clink-arg=-march=native\", \"-Clink-arg=-mtune=native\", \"-Clink-arg=-falign-functions=32\", \"-Clink-arg=-fasynchronous-unwind-tables\", \"-Clink-arg=-funroll-loops\", \"-Clink-arg=-fvisibility-inlines-hidden\", \"-Clink-arg=-static-libstdc++\", \"-Clink-arg=-march=native\", \"-Clink-arg=-static-libgcc\", \"-Clink-arg=-pthread\", \"-Clink-arg=-lpthread\", \"-Clink-arg=-L.\"]\n[net]\ngit-fetch-with-cli = true\n[profile.release]\nopt-level = 3\nlto = \"fat\"\n" > $HOME/.cargo/config.toml
-unset CFLAGS
-unset CXXFLAGS
-unset FCFLAGS
-unset FFLAGS
-unset CFFLAGS
-unset LDFLAGS
+unset http_proxy
+unset https_proxy
+unset no_proxy
+export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
+export LANG=C.UTF-8
+export SOURCE_DATE_EPOCH=1647690458
+export GCC_IGNORE_WERROR=1
+## altflagsrust_pgo content
 export CARGO_NET_GIT_FETCH_WITH_CLI=true
-export CARGO_PROFILE_RELEASE_LTO=fat
-export CARGO_PROFILE_RELEASE_OPT_LEVEL=3
-export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=clang
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 export CARGO_HTTP_CAINFO=/var/cache/ca-certs/anchors/ca-certificates.crt
-export CARGO_TARGET_DIR=target
-cargo install %{?_smp_mflags} --all-features --offline --no-track --target x86_64-unknown-linux-gnu --verbose --path . --target-dir target --root %{buildroot}/usr/
-## Cargo install assets
-install -dm 0755 %{buildroot}/usr/share/bash-completion/completions/
-install -m0644 /builddir/build/BUILD/just/completions/just.bash %{buildroot}/usr/share/bash-completion/completions/just
-install -dm 0755 %{buildroot}/usr/share/fish/completions/
-install -m0644 /builddir/build/BUILD/just/completions/just.fish %{buildroot}/usr/share/fish/completions/just.fish
-install -dm 0755 %{buildroot}/usr/share/zsh/site-functions/
-install -m0644 /builddir/build/BUILD/just/completions/just.zsh %{buildroot}/usr/share/zsh/site-functions/_just
-install -dm 0755 %{buildroot}/usr/share/man/man1/
-install -m0644 /builddir/build/BUILD/just/man/just.1 %{buildroot}/usr/share/man/man1/just.1
+export CC=clang
+export CXX=clang++
+export CC_x86_64_unknown_linux_gnu=clang
+export CXX_x86_64_unknown_linux_gnu=clang++
+export AR=/usr/bin/llvm-ar
+export RANLIB=/usr/bin/llvm-ranlib
+export NM=/usr/bin/llvm-nm
+export AR_x86_64_unknown_linux_gnu=/usr/bin/llvm-ar
+export RANLIB_x86_64_unknown_linux_gnu=/usr/bin/llvm-ranlib
+export NM_x86_64_unknown_linux_gnu=/usr/bin/llvm-nm
+export CRATE_CC_NO_DEFAULTS=1
+export CARGO_BUILD_JOBS=16
+export LLVM_PROFILE_FILE="/var/tmp/pgo/code-%p-%m.profraw"
+export PGO_GEN="-fprofile-generate=/var/tmp/pgo/"
+export PGO_GEN_RUST="-Cprofile-generate=/var/tmp/pgo/ -Clink-arg=-fprofile-generate=/var/tmp/pgo/"
+export PGO_USE="-fprofile-use=/var/tmp/pgo/rustprofile.profdata -Wl,--lto-pgo-warn-mismatch"
+export PGO_USE_RUST="-Cprofile-use=/var/tmp/pgo/rustprofile.profdata -Clink-arg=-fprofile-use=/var/tmp/pgo/rustprofile.profdata -Cllvm-args=-pgo-warn-missing-function -Clink-arg=-Wl,--lto-pgo-warn-mismatch"
+export CFLAGS_GENERATE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_GEN"
+export CXXFLAGS_GENERATE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_GEN"
+export LDFLAGS_GENERATE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_GEN"
+export CFLAGS_x86_64_unknown_linux_gnu_GENERATE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_GEN"
+export CXXFLAGS_x86_64_unknown_linux_gnu_GENERATE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_GEN"
+export LDFLAGS_x86_64_unknown_linux_gnu_GENERATE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_GEN"
+export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS_GENERATE="-Zunstable-options -Clink-self-contained=off -Coverflow-checks=off -Cstrip=debuginfo -Cdebug-assertions=off -Cdebuginfo=0 -Ctarget-cpu=native -Cprefer-dynamic=no -Zplt=off -Ztune-cpu=native -Copt-level=3 -Clinker-plugin-lto=on -Ccodegen-units=1 -Cembed-bitcode=yes -Ctarget-feature=+crt-static,-vzeroupper -Crelocation-model=static -Cincremental=false -Cforce-frame-pointers=off -Cforce-unwind-tables=off -Cpanic=abort -Clinker=/usr/bin/clang -Clink-arg=-Wno-unused-command-line-argument -Clink-arg=-DNDEBUG -Clink-arg=-Wall -Clink-arg=-flto=full -Clink-arg=-Wl,--lto-partitions=1 -Clink-arg=-Wl,--lto-O3 -Clink-arg=-Wl,-O2 -Clink-arg=-Ofast -Clink-arg=-mno-vzeroupper -Clink-arg=-march=native -Clink-arg=-mtune=native -Clink-arg=-fuse-ld=lld -Clink-arg=-Wl,--as-needed -Clink-arg=-Wl,--build-id=sha1 -Clink-arg=-Wl,--enable-new-dtags -Clink-arg=-Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Clink-arg=-Wno-error -Clink-arg=-mprefer-vector-width=256 -Clink-arg=-falign-functions=32 -Clink-arg=-fno-semantic-interposition -Clink-arg=-Wl,-Bsymbolic-functions -Clink-arg=-fno-stack-protector -Clink-arg=-fno-trapping-math -Clink-arg=-fno-math-errno -Clink-arg=-ftree-slp-vectorize -Clink-arg=-ftree-vectorize -Clink-arg=-feliminate-unused-debug-types -Clink-arg=-fno-plt -Clink-arg=-Wno-error -Clink-arg=-Wp,-D_REENTRANT -Clink-arg=-fvisibility-inlines-hidden -Clink-arg=-fomit-frame-pointer -Clink-arg=-static-libstdc++ -Clink-arg=-static-libgcc -Clink-arg=-pthread -Clink-arg=-fPIC -Clink-arg=-pipe -Clink-arg=-L. $PGO_GEN_RUST"
+export RUSTFLAGS_GENERATE="-Zunstable-options -Clink-self-contained=off -Coverflow-checks=off -Cstrip=debuginfo -Cdebug-assertions=off -Cdebuginfo=0 -Ctarget-cpu=native -Cprefer-dynamic=no -Zplt=off -Ztune-cpu=native -Copt-level=3 -Clinker-plugin-lto=on -Ccodegen-units=1 -Cembed-bitcode=yes -Ctarget-feature=+crt-static,-vzeroupper -Crelocation-model=static -Cincremental=false -Cforce-frame-pointers=off -Cforce-unwind-tables=off -Cpanic=abort -Clinker=/usr/bin/clang -Clink-arg=-Wno-unused-command-line-argument -Clink-arg=-DNDEBUG -Clink-arg=-Wall -Clink-arg=-flto=full -Clink-arg=-Wl,--lto-partitions=1 -Clink-arg=-Wl,--lto-O3 -Clink-arg=-Wl,-O2 -Clink-arg=-Ofast -Clink-arg=-mno-vzeroupper -Clink-arg=-march=native -Clink-arg=-mtune=native -Clink-arg=-fuse-ld=lld -Clink-arg=-Wl,--as-needed -Clink-arg=-Wl,--build-id=sha1 -Clink-arg=-Wl,--enable-new-dtags -Clink-arg=-Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Clink-arg=-Wno-error -Clink-arg=-mprefer-vector-width=256 -Clink-arg=-falign-functions=32 -Clink-arg=-fno-semantic-interposition -Clink-arg=-Wl,-Bsymbolic-functions -Clink-arg=-fno-stack-protector -Clink-arg=-fno-trapping-math -Clink-arg=-fno-math-errno -Clink-arg=-ftree-slp-vectorize -Clink-arg=-ftree-vectorize -Clink-arg=-feliminate-unused-debug-types -Clink-arg=-fno-plt -Clink-arg=-Wno-error -Clink-arg=-Wp,-D_REENTRANT -Clink-arg=-fvisibility-inlines-hidden -Clink-arg=-fomit-frame-pointer -Clink-arg=-static-libstdc++ -Clink-arg=-static-libgcc -Clink-arg=-pthread -Clink-arg=-fPIC -Clink-arg=-pipe -Clink-arg=-L. $PGO_GEN_RUST"
+export CARGO_HOST_RUSTFLAGS_GENERATE="-Zunstable-options -Clink-self-contained=off -Coverflow-checks=off -Cstrip=debuginfo -Cdebug-assertions=off -Cdebuginfo=0 -Ctarget-cpu=native -Cprefer-dynamic=no -Zplt=off -Ztune-cpu=native -Copt-level=3 -Clinker-plugin-lto=on -Ccodegen-units=1 -Cembed-bitcode=yes -Ctarget-feature=-vzeroupper -Crelocation-model=static -Cincremental=false -Cforce-frame-pointers=off -Cforce-unwind-tables=off -Cpanic=abort -Clinker=/usr/bin/clang -Clink-arg=-Wno-unused-command-line-argument -Clink-arg=-DNDEBUG -Clink-arg=-Wall -Clink-arg=-flto=full -Clink-arg=-Wl,--lto-partitions=1 -Clink-arg=-Wl,--lto-O3 -Clink-arg=-Wl,-O2 -Clink-arg=-Ofast -Clink-arg=-mno-vzeroupper -Clink-arg=-march=native -Clink-arg=-mtune=native -Clink-arg=-fuse-ld=lld -Clink-arg=-Wl,--as-needed -Clink-arg=-Wl,--build-id=sha1 -Clink-arg=-Wl,--enable-new-dtags -Clink-arg=-Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Clink-arg=-Wno-error -Clink-arg=-mprefer-vector-width=256 -Clink-arg=-falign-functions=32 -Clink-arg=-fno-semantic-interposition -Clink-arg=-Wl,-Bsymbolic-functions -Clink-arg=-fno-stack-protector -Clink-arg=-fno-trapping-math -Clink-arg=-fno-math-errno -Clink-arg=-ftree-slp-vectorize -Clink-arg=-ftree-vectorize -Clink-arg=-feliminate-unused-debug-types -Clink-arg=-fno-plt -Clink-arg=-Wno-error -Clink-arg=-Wp,-D_REENTRANT -Clink-arg=-fvisibility-inlines-hidden -Clink-arg=-fomit-frame-pointer -Clink-arg=-static-libstdc++ -Clink-arg=-static-libgcc -Clink-arg=-pthread -Clink-arg=-fPIC -Clink-arg=-pipe -Clink-arg=-L. $PGO_GEN_RUST"
+export CFLAGS_USE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_USE"
+export CXXFLAGS_USE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_USE"
+export LDFLAGS_USE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_USE"
+export CFLAGS_x86_64_unknown_linux_gnu_USE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_USE"
+export CXXFLAGS_x86_64_unknown_linux_gnu_USE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_USE"
+export LDFLAGS_x86_64_unknown_linux_gnu_USE="-Wno-unused-command-line-argument -DNDEBUG -Wall -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_USE"
+export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS_USE="-Zunstable-options -Clink-self-contained=off -Coverflow-checks=off -Cstrip=debuginfo -Cdebug-assertions=off -Cdebuginfo=0 -Ctarget-cpu=native -Cprefer-dynamic=no -Zplt=off -Ztune-cpu=native -Copt-level=3 -Clinker-plugin-lto=on -Ccodegen-units=1 -Cembed-bitcode=yes -Ctarget-feature=+crt-static,-vzeroupper -Crelocation-model=static -Cincremental=false -Cforce-frame-pointers=off -Cforce-unwind-tables=off -Cpanic=abort -Clinker=/usr/bin/clang -Clink-arg=-Wno-unused-command-line-argument -Clink-arg=-DNDEBUG -Clink-arg=-Wall -Clink-arg=-flto=full -Clink-arg=-Wl,--lto-partitions=1 -Clink-arg=-Wl,--lto-O3 -Clink-arg=-Wl,-O2 -Clink-arg=-Ofast -Clink-arg=-mno-vzeroupper -Clink-arg=-march=native -Clink-arg=-mtune=native -Clink-arg=-fuse-ld=lld -Clink-arg=-Wl,--as-needed -Clink-arg=-Wl,--build-id=sha1 -Clink-arg=-Wl,--enable-new-dtags -Clink-arg=-Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Clink-arg=-Wno-error -Clink-arg=-mprefer-vector-width=256 -Clink-arg=-falign-functions=32 -Clink-arg=-fno-semantic-interposition -Clink-arg=-Wl,-Bsymbolic-functions -Clink-arg=-fno-stack-protector -Clink-arg=-fno-trapping-math -Clink-arg=-fno-math-errno -Clink-arg=-ftree-slp-vectorize -Clink-arg=-ftree-vectorize -Clink-arg=-feliminate-unused-debug-types -Clink-arg=-fno-plt -Clink-arg=-Wno-error -Clink-arg=-Wp,-D_REENTRANT -Clink-arg=-fvisibility-inlines-hidden -Clink-arg=-fomit-frame-pointer -Clink-arg=-static-libstdc++ -Clink-arg=-static-libgcc -Clink-arg=-pthread -Clink-arg=-fPIC -Clink-arg=-pipe -Clink-arg=-L. $PGO_USE_RUST"
+export RUSTFLAGS_USE="-Zunstable-options -Clink-self-contained=off -Coverflow-checks=off -Cstrip=debuginfo -Cdebug-assertions=off -Cdebuginfo=0 -Ctarget-cpu=native -Cprefer-dynamic=no -Zplt=off -Ztune-cpu=native -Copt-level=3 -Clinker-plugin-lto=on -Ccodegen-units=1 -Cembed-bitcode=yes -Ctarget-feature=+crt-static,-vzeroupper -Crelocation-model=static -Cincremental=false -Cforce-frame-pointers=off -Cforce-unwind-tables=off -Cpanic=abort -Clinker=/usr/bin/clang -Clink-arg=-Wno-unused-command-line-argument -Clink-arg=-DNDEBUG -Clink-arg=-Wall -Clink-arg=-flto=full -Clink-arg=-Wl,--lto-partitions=1 -Clink-arg=-Wl,--lto-O3 -Clink-arg=-Wl,-O2 -Clink-arg=-Ofast -Clink-arg=-mno-vzeroupper -Clink-arg=-march=native -Clink-arg=-mtune=native -Clink-arg=-fuse-ld=lld -Clink-arg=-Wl,--as-needed -Clink-arg=-Wl,--build-id=sha1 -Clink-arg=-Wl,--enable-new-dtags -Clink-arg=-Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Clink-arg=-Wno-error -Clink-arg=-mprefer-vector-width=256 -Clink-arg=-falign-functions=32 -Clink-arg=-fno-semantic-interposition -Clink-arg=-Wl,-Bsymbolic-functions -Clink-arg=-fno-stack-protector -Clink-arg=-fno-trapping-math -Clink-arg=-fno-math-errno -Clink-arg=-ftree-slp-vectorize -Clink-arg=-ftree-vectorize -Clink-arg=-feliminate-unused-debug-types -Clink-arg=-fno-plt -Clink-arg=-Wno-error -Clink-arg=-Wp,-D_REENTRANT -Clink-arg=-fvisibility-inlines-hidden -Clink-arg=-fomit-frame-pointer -Clink-arg=-static-libstdc++ -Clink-arg=-static-libgcc -Clink-arg=-pthread -Clink-arg=-fPIC -Clink-arg=-pipe -Clink-arg=-L. $PGO_USE_RUST"
+export CARGO_HOST_RUSTFLAGS_USE="-Zunstable-options -Clink-self-contained=off -Coverflow-checks=off -Cstrip=debuginfo -Cdebug-assertions=off -Cdebuginfo=0 -Ctarget-cpu=native -Cprefer-dynamic=no -Zplt=off -Ztune-cpu=native -Copt-level=3 -Clinker-plugin-lto=on -Ccodegen-units=1 -Cembed-bitcode=yes -Ctarget-feature=-vzeroupper -Crelocation-model=static -Cincremental=false -Cforce-frame-pointers=off -Cforce-unwind-tables=off -Cpanic=abort -Clinker=/usr/bin/clang -Clink-arg=-Wno-unused-command-line-argument -Clink-arg=-DNDEBUG -Clink-arg=-Wall -Clink-arg=-flto=full -Clink-arg=-Wl,--lto-partitions=1 -Clink-arg=-Wl,--lto-O3 -Clink-arg=-Wl,-O2 -Clink-arg=-Ofast -Clink-arg=-mno-vzeroupper -Clink-arg=-march=native -Clink-arg=-mtune=native -Clink-arg=-fuse-ld=lld -Clink-arg=-Wl,--as-needed -Clink-arg=-Wl,--build-id=sha1 -Clink-arg=-Wl,--enable-new-dtags -Clink-arg=-Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Clink-arg=-Wno-error -Clink-arg=-mprefer-vector-width=256 -Clink-arg=-falign-functions=32 -Clink-arg=-fno-semantic-interposition -Clink-arg=-Wl,-Bsymbolic-functions -Clink-arg=-fno-stack-protector -Clink-arg=-fno-trapping-math -Clink-arg=-fno-math-errno -Clink-arg=-ftree-slp-vectorize -Clink-arg=-ftree-vectorize -Clink-arg=-feliminate-unused-debug-types -Clink-arg=-fno-plt -Clink-arg=-Wno-error -Clink-arg=-Wp,-D_REENTRANT -Clink-arg=-fvisibility-inlines-hidden -Clink-arg=-fomit-frame-pointer -Clink-arg=-static-libstdc++ -Clink-arg=-static-libgcc -Clink-arg=-pthread -Clink-arg=-fPIC -Clink-arg=-pipe -Clink-arg=-L. $PGO_USE_RUST"
+export PCRE2_SYS_STATIC=1
+export OPENSSL_STATIC=yes
+export OPENSSL_LIB_DIR=/usr/lib64/
+export OPENSSL_INCLUDE_DIR=/usr/include/
+export MAKEFLAGS=%{?_smp_mflags}
+%global _lto_cflags 1
+%global _disable_maintainer_mode 1
+export CCACHE_DISABLE=true
+export CCACHE_NOHASHDIR=true
+export CCACHE_CPP2=true
+export CCACHE_SLOPPINESS=pch_defines,time_macros,locale,file_stat_matches,file_stat_matches_ctime,include_file_ctime,include_file_mtime,modules,system_headers,clang_index_store,file_macro
+export CCACHE_DIR=/var/tmp/ccache
+export CCACHE_BASEDIR=/builddir/build/BUILD
+export PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/share/pkgconfig"
+export LD_LIBRARY_PATH="/usr/local/nvidia/lib64:/usr/local/nvidia/lib64/gbm:/usr/local/nvidia/lib64/vdpau:/usr/local/nvidia/lib64/xorg/modules/drivers:/usr/local/nvidia/lib64/xorg/modules/extensions:/usr/local/cuda/lib64:/usr/lib64/haswell:/usr/lib64/dri:/usr/lib64:/usr/lib:/aot/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin:/aot/intel/oneapi/compiler/latest/linux/lib:/aot/intel/oneapi/mkl/latest/lib/intel64:/aot/intel/oneapi/tbb/latest/lib/intel64/gcc4.8:/usr/share:/usr/lib64/wine:/usr/local/nvidia/lib32:/usr/local/nvidia/lib32/vdpau:/usr/lib32:/usr/lib32/wine"
+export LIBRARY_PATH="/usr/local/nvidia/lib64:/usr/local/nvidia/lib64/gbm:/usr/local/nvidia/lib64/vdpau:/usr/local/nvidia/lib64/xorg/modules/drivers:/usr/local/nvidia/lib64/xorg/modules/extensions:/usr/local/cuda/lib64:/usr/lib64/haswell:/usr/lib64/dri:/usr/lib64:/usr/lib:/aot/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin:/aot/intel/oneapi/compiler/latest/linux/lib:/aot/intel/oneapi/mkl/latest/lib/intel64:/aot/intel/oneapi/tbb/latest/lib/intel64/gcc4.8:/usr/share:/usr/lib64/wine:/usr/local/nvidia/lib32:/usr/local/nvidia/lib32/vdpau:/usr/lib32:/usr/lib32/wine"
+export PATH="/usr/lib64/ccache/bin:/usr/local/cuda/bin:/usr/local/nvidia/bin:/usr/bin/haswell:/usr/bin:/usr/sbin"
+export CPATH="/usr/local/cuda/include"
+export DISPLAY=:0
+export __GL_SYNC_TO_VBLANK=1
+export __GL_SYNC_DISPLAY_DEVICE=HDMI-0
+export VDPAU_NVIDIA_SYNC_DISPLAY_DEVICE=HDMI-0
+export LANG=en_US.UTF-8
+export XDG_CONFIG_DIRS=/usr/share/xdg:/etc/xdg
+export XDG_SEAT=seat0
+export XDG_SESSION_TYPE=tty
+export XDG_CURRENT_DESKTOP=KDE
+export XDG_SESSION_CLASS=user
+export XDG_VTNR=1
+export XDG_SESSION_ID=1
+export XDG_RUNTIME_DIR=/run/user/1000
+export XDG_DATA_DIRS=/usr/local/share:/usr/share
+export KDE_SESSION_VERSION=5
+export KDE_SESSION_UID=1000
+export KDE_FULL_SESSION=true
+export KDE_APPLICATIONS_AS_SCOPE=1
+export VDPAU_DRIVER=nvidia
+export LIBVA_DRIVER_NAME=vdpau
+export LIBVA_DRIVERS_PATH=/usr/lib64/dri
+export GTK_RC_FILES=/etc/gtk/gtkrc
+export FONTCONFIG_PATH="/usr/share/defaults/fonts"
+export GTK_IM_MODULE="xim"
+export QT_IM_MODULE="cedilla"
+export FREETYPE_PROPERTIES="truetype:interpreter-version=40"
+export NO_AT_BRIDGE=1
+export GTK_A11Y=none
+export PLASMA_USE_QT_SCALING=1
+export QT_AUTO_SCREEN_SCALE_FACTOR=0
+export QT_ENABLE_HIGHDPI_SCALING=0
+export QT_FONT_DPI=88
+export GTK_USE_PORTAL=1
+export DESKTOP_SESSION=plasma
+## altflagsrust_pgo end
+
+if [ ! -f statuspgo ]; then
+echo PGO Phase 1
+export CFLAGS="${CFLAGS_GENERATE}"
+export CXXFLAGS="${CXXFLAGS_GENERATE}"
+export LDFLAGS="${LDFLAGS_GENERATE}"
+export CFLAGS_x86_64_unknown_linux_gnu="${CFLAGS_x86_64_unknown_linux_gnu_GENERATE}"
+export CXXFLAGS_x86_64_unknown_linux_gnu="${CXXFLAGS_x86_64_unknown_linux_gnu_GENERATE}"
+export LDFLAGS_x86_64_unknown_linux_gnu="${LDFLAGS_x86_64_unknown_linux_gnu_GENERATE}"
+export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS="${CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS_GENERATE}"
+export RUSTFLAGS="${RUSTFLAGS_GENERATE}"
+export CARGO_HOST_RUSTFLAGS="${CARGO_HOST_RUSTFLAGS_GENERATE}"
+export LLVM_PROFILE_FILE="/var/tmp/pgo/code-%p-%m.profraw"
+cargo test -Zunstable-options -Zhost-config -Ztarget-applies-to-host -Zavoid-dev-deps --jobs 16 -vv --offline --locked --no-track --release --target x86_64-unknown-linux-gnu --all-features --no-fail-fast --all-targets -- --test-threads=1
+## profile_payload start
+unset LD_LIBRARY_PATH
+unset LIBRARY_PATH
+export LLVM_PROFILE_FILE="/var/tmp/pgo/code-%p-%m.profraw"
+export LD_LIBRARY_PATH="/usr/local/nvidia/lib64:/usr/local/nvidia/lib64/gbm:/usr/local/nvidia/lib64/vdpau:/usr/local/nvidia/lib64/xorg/modules/drivers:/usr/local/nvidia/lib64/xorg/modules/extensions:/usr/local/cuda/lib64:/usr/lib64/haswell:/usr/lib64/dri:/usr/lib64:/usr/lib:/aot/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin:/aot/intel/oneapi/compiler/latest/linux/lib:/aot/intel/oneapi/mkl/latest/lib/intel64:/aot/intel/oneapi/tbb/latest/lib/intel64/gcc4.8:/usr/share:/usr/lib64/wine:/usr/local/nvidia/lib32:/usr/local/nvidia/lib32/vdpau:/usr/lib32:/usr/lib32/wine"
+export LIBRARY_PATH="/usr/local/nvidia/lib64:/usr/local/nvidia/lib64/gbm:/usr/local/nvidia/lib64/vdpau:/usr/local/nvidia/lib64/xorg/modules/drivers:/usr/local/nvidia/lib64/xorg/modules/extensions:/usr/local/cuda/lib64:/usr/lib64/haswell:/usr/lib64/dri:/usr/lib64:/usr/lib:/aot/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin:/aot/intel/oneapi/compiler/latest/linux/lib:/aot/intel/oneapi/mkl/latest/lib/intel64:/aot/intel/oneapi/tbb/latest/lib/intel64/gcc4.8:/usr/share:/usr/lib64/wine:/usr/local/nvidia/lib32:/usr/local/nvidia/lib32/vdpau:/usr/lib32:/usr/lib32/wine"
+## profile_payload end
+cargo clean || :
+echo USED > statuspgo
+fi
+
+if [ -f statuspgo ]; then
+echo PGO Phase 2
+llvm-profdata merge -o /var/tmp/pgo/rustprofile.profdata /var/tmp/pgo/*.profraw
+export CFLAGS="${CFLAGS_USE}"
+export CXXFLAGS="${CXXFLAGS_USE}"
+export LDFLAGS="${LDFLAGS_USE}"
+export CFLAGS_x86_64_unknown_linux_gnu="${CFLAGS_x86_64_unknown_linux_gnu_USE}"
+export CXXFLAGS_x86_64_unknown_linux_gnu="${CXXFLAGS_x86_64_unknown_linux_gnu_USE}"
+export LDFLAGS_x86_64_unknown_linux_gnu="${LDFLAGS_x86_64_unknown_linux_gnu_USE}"
+export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS="${CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS_USE}"
+export RUSTFLAGS="${RUSTFLAGS_USE}"
+export CARGO_HOST_RUSTFLAGS="${CARGO_HOST_RUSTFLAGS_USE}"
+cargo install -Zunstable-options -Zhost-config -Ztarget-applies-to-host -Zavoid-dev-deps --jobs 16 -vv --offline --locked --no-track --force --profile release --target x86_64-unknown-linux-gnu --path . --root %{buildroot}/usr/ --all-features
+fi
 
 %files
 %defattr(-,root,root,-)
-
-%files bin
-%defattr(-,root,root,-)
-/usr/bin/just
-
-%files data
-%defattr(-,root,root,-)
-/usr/share/bash-completion/completions/just
-/usr/share/fish/completions/just.fish
-/usr/share/zsh/site-functions/_just
-
-%files man
-%defattr(0644,root,root,0755)
-/usr/share/man/man1/just.1
