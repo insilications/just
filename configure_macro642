@@ -1,0 +1,3 @@
+export LLVM_PROFILE_FILE="/var/tmp/pgo/code-%p-%m.profraw"
+#! -Zavoid-dev-deps
+cargo test -Zunstable-options -Zpanic-abort-tests -Zhost-config -Ztarget-applies-to-host --jobs 16 -vv --offline --locked --release --target x86_64-unknown-linux-gnu --all-features --no-fail-fast --all-targets -- --test-threads=1 || :

@@ -1,1 +1,2 @@
 export LLVM_PROFILE_FILE="/var/tmp/pgo/code-%p-%m.profraw"
+exit
