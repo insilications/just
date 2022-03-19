@@ -1,3 +1,1 @@
 export LLVM_PROFILE_FILE="/var/tmp/pgo/code-%p-%m.profraw"
-# export PATH="%{buildroot}/usr/bin/:$PATH"
-# echo "$(which rg)"
