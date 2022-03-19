@@ -91,7 +91,7 @@ unset https_proxy
 unset no_proxy
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1647690458
+export SOURCE_DATE_EPOCH=1647690607
 export GCC_IGNORE_WERROR=1
 ## altflagsrust_pgo content
 export CARGO_NET_GIT_FETCH_WITH_CLI=true
@@ -192,7 +192,7 @@ unset https_proxy
 unset no_proxy
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1647690458
+export SOURCE_DATE_EPOCH=1647690607
 export GCC_IGNORE_WERROR=1
 ## altflagsrust_pgo content
 export CARGO_NET_GIT_FETCH_WITH_CLI=true
@@ -299,7 +299,7 @@ export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS="${CARGO_TARGET_X86_64_UN
 export RUSTFLAGS="${RUSTFLAGS_GENERATE}"
 export CARGO_HOST_RUSTFLAGS="${CARGO_HOST_RUSTFLAGS_GENERATE}"
 export LLVM_PROFILE_FILE="/var/tmp/pgo/code-%p-%m.profraw"
-cargo test -Zunstable-options -Zhost-config -Ztarget-applies-to-host -Zavoid-dev-deps --jobs 16 -vv --offline --locked --no-track --release --target x86_64-unknown-linux-gnu --all-features --no-fail-fast --all-targets -- --test-threads=1
+cargo test -Zunstable-options -Zhost-config -Ztarget-applies-to-host -Zavoid-dev-deps --jobs 16 -vv --offline --locked --release --target x86_64-unknown-linux-gnu --all-features --no-fail-fast --all-targets -- --test-threads=1
 ## profile_payload start
 unset LD_LIBRARY_PATH
 unset LIBRARY_PATH
